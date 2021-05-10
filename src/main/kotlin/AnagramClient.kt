@@ -11,6 +11,9 @@ TODO
  5) remove selection from given
  6) remove selection from subset
  7) repeat
+ 10MAY21
+ work on set union, difference, intersection
+
  */
 
 fun getWords() = Files.readAllLines(Path.of("corpus.csv")).map {
