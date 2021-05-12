@@ -43,6 +43,11 @@ class MutableCountedSet<K: Comparable<K>>(
     /**
      *
      */
+    private fun dec(key: K, count: Int?): Int = count?.minus(1)?: 0
+
+    /**
+     *
+     */
     fun forEach(action: (key: K) -> Unit) = map.keys.forEach(action)
 
     /**
@@ -146,21 +151,22 @@ class MutableCountedSet<K: Comparable<K>>(
      *
      */
     override fun remove(element: K): Boolean {
-        return when (val count = this[element]) {
-            0 -> return true
-            else -> {
-                this[element] = count - 1
-                --size
-                true
-            }
+        val result = map.compute(element, ::dec)
+        when {
+            result == null -> {}
+            result > 0 -> --size
+            else -> map.remove(element)
         }
+        return true
     }
 
     /**
      *
      */
     override fun removeAll(elements: Collection<K>): Boolean {
-        for (element in elements) remove(element)
+        for (element in elements) {
+            remove(element)
+        }
         return true
     }
 
@@ -234,14 +240,9 @@ class MutableCountedSet<K: Comparable<K>>(
      */
     operator fun minus(that: MutableCountedSet<K>): MutableCountedSet<K> {
         return MutableCountedSet(this).apply {
-            for ((k , v) in that.map) {
-                // TODO inspect this
-                val difference = get(k) - v
-                if (difference > 0) {
-                    this[k] = difference
-                } else {
-                    // TODO inspect this
-                    this.remove(k)
+            that.map.forEach { (key, count) ->
+                repeat(count) {
+                    remove(key)
                 }
             }
         }
