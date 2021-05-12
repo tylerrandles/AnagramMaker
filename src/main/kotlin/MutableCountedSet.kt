@@ -1,6 +1,6 @@
 import java.util.*
 
-open class MutableCountedSet<K: Comparable<K>>(
+class MutableCountedSet<K: Comparable<K>>(
     private val given: Collection<K> ,
     private val map: MutableMap<K, Int> = mutableMapOf() ,
     override var size: Int = map.size ,
@@ -235,10 +235,12 @@ open class MutableCountedSet<K: Comparable<K>>(
     operator fun minus(that: MutableCountedSet<K>): MutableCountedSet<K> {
         return MutableCountedSet(this).apply {
             for ((k , v) in that.map) {
+                // TODO inspect this
                 val difference = get(k) - v
                 if (difference > 0) {
                     this[k] = difference
                 } else {
+                    // TODO inspect this
                     this.remove(k)
                 }
             }

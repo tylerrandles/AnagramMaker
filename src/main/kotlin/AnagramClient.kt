@@ -74,8 +74,24 @@ fun reduce() {
     }
 }
 
+fun test() {
+    val watermelon = MutableCountedSet("watermelon".toList())
+    val freshwater = MutableCountedSet("freshwater".toList())
+    val `watermelon - freshwater` = watermelon - freshwater
+    val `freshwater - watermelon` = freshwater - watermelon
+    println("watermelon: $watermelon")
+    println("watermelon - freshwater: $`watermelon - freshwater`")
+    println("freshwater: $freshwater")
+    println("freshwater - watermelon: $`freshwater - watermelon`")
+
+}
+
 fun main(args: Array<String>) {
-    repeat(readLine()?.toInt()?: 1) {
-        reduce()
+    if (args.isEmpty()) {
+        test()
+    } else {
+        repeat(readLine()?.toInt() ?: 1) {
+            reduce()
+        }
     }
 }
