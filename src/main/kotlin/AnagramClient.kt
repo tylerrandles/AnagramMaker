@@ -16,12 +16,18 @@ TODO
 
  */
 
+/*
+ 3.1)
+ */
 fun getWords() = Files.readAllLines(Path.of("corpus.csv")).map {
     it.split(",")
 }.flatten().map {
     MutableCountedSet(it.toList())
 }.toSet()
 
+/*
+ 1), 2)
+ */
 fun getInput() = run {
     print("Enter text: ")
     val text = readLine()?: ""
@@ -29,6 +35,9 @@ fun getInput() = run {
     MutableCountedSet(letters).also { println() }
 }
 
+/*
+ 3.2)
+ */
 fun getSubset(given: MutableCountedSet<Char>, dict: Set<MutableCountedSet<Char>>): MutableSet<MutableCountedSet<Char>> {
     return mutableSetOf<MutableCountedSet<Char>>().apply {
         for (word in dict)
@@ -37,9 +46,16 @@ fun getSubset(given: MutableCountedSet<Char>, dict: Set<MutableCountedSet<Char>>
     }
 }
 
+/*
+ 4)
+ */
 fun reduce() {
     var remaining = getInput()
     var words = getWords()
+    /*
+     TODO
+      reduce the cognitive complexity
+     */
     while (remaining.isNotEmpty()) {
         words = getSubset(remaining, words)
         println("words remaining: ${ words.size }")
@@ -58,8 +74,24 @@ fun reduce() {
     }
 }
 
+fun test() {
+    val watermelon = MutableCountedSet("watermelon".toList())
+    val freshwater = MutableCountedSet("freshwater".toList())
+    val `watermelon - freshwater` = watermelon - freshwater
+    val `freshwater - watermelon` = freshwater - watermelon
+    println("watermelon: $watermelon")
+    println("watermelon - freshwater: $`watermelon - freshwater`")
+    println("freshwater: $freshwater")
+    println("freshwater - watermelon: $`freshwater - watermelon`")
+
+}
+
 fun main(args: Array<String>) {
-    repeat(readLine()?.toInt()?: 1) {
-        reduce()
+    if (args.isEmpty()) {
+        test()
+    } else {
+        repeat(readLine()?.toInt() ?: 1) {
+            reduce()
+        }
     }
 }
