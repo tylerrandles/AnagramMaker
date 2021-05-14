@@ -43,7 +43,14 @@ class MutableCountedSet<K: Comparable<K>>(
     /**
      *
      */
-    private fun dec(key: K, count: Int?): Int = count?.minus(1)?: 0
+    private fun dec(key: K, count: Int?): Int {
+        // = count?.minus(1)?: 0
+        return if (count != null) {
+            count - 1
+        } else {
+            0
+        }
+    }
 
     /**
      *
@@ -151,7 +158,13 @@ class MutableCountedSet<K: Comparable<K>>(
      *
      */
     override fun remove(element: K): Boolean {
-        val result = map.compute(element, ::dec)
+        val result = when (val number = map[element]) {
+            null -> 0
+            in Int.MIN_VALUE..1 -> 0
+            else -> number - 1
+        }
+
+        print("key: $element, result: $result, ") //TODO I don't know why the result is messed up
         when {
             result == null -> {}
             result > 0 -> --size
@@ -241,9 +254,12 @@ class MutableCountedSet<K: Comparable<K>>(
     operator fun minus(that: MutableCountedSet<K>): MutableCountedSet<K> {
         return MutableCountedSet(this).apply {
             that.map.forEach { (key, count) ->
+                println("start: $this")
+                println(key to count)
                 repeat(count) {
                     remove(key)
                 }
+                println("result: $this")
             }
         }
     }
