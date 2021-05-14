@@ -158,17 +158,35 @@ class MutableCountedSet<K: Comparable<K>>(
      *
      */
     override fun remove(element: K): Boolean {
-        val result = when (val number = map[element]) {
-            null -> 0
-            in Int.MIN_VALUE..1 -> 0
-            else -> number - 1
+        val result = when (val number = map[element]?.also(::println)) {
+            null -> {
+                print("res: null, ")
+                0
+            }
+            in Int.MIN_VALUE..1 -> {
+                print("res: < 1, ")
+                0
+            }
+            else -> {
+                print("res: 1 or more, ")
+                number - 1
+            }
         }
 
         print("key: $element, result: $result, ") //TODO I don't know why the result is messed up
         when {
-            result == null -> {}
-            result > 0 -> --size
-            else -> map.remove(element)
+            result > 0 -> {
+                print("decreasing size, ")
+                --size
+            }
+            result in Int.MIN_VALUE..0 -> {
+                print("removing because less than 1, ")
+                map.remove(element)
+            }
+            else -> {
+                print("else, meee")
+                map.remove(element)
+            }
         }
         return true
     }
