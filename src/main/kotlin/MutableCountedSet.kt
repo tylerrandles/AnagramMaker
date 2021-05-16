@@ -4,19 +4,11 @@ class MutableCountedSet<K: Comparable<K>>(
     private val given: Collection<K> ,
     private val map: MutableMap<K, Int> = mutableMapOf() ,
     override var size: Int = map.size ,
-): MutableSet<K>, MutableCollection<K> {
+): MutableSet<K>, MutableCollection<K>, Cloneable {
 
     init {
         addAll(given)
     }
-
-    /**
-     *
-     *
-    constructor(collection: Collection<K>) {
-        this.given = collection
-        addAll(collection)
-    }*/
 
     /**
      *
@@ -146,21 +138,24 @@ class MutableCountedSet<K: Comparable<K>>(
      *
      */
     override fun remove(element: K): Boolean {
-        return when (val count = this[element]) {
-            0 -> return true
-            else -> {
-                this[element] = count - 1
-                --size
-                true
+        var count = map.remove(element)
+        if (count != null) {
+            --size
+            --count
+            if (count > 0) {
+                map[element] = count
             }
         }
+        return true
     }
 
     /**
      *
      */
     override fun removeAll(elements: Collection<K>): Boolean {
-        for (element in elements) remove(element)
+        for (element in elements) {
+            remove(element)
+        }
         return true
     }
 
@@ -233,18 +228,12 @@ class MutableCountedSet<K: Comparable<K>>(
      *
      */
     operator fun minus(that: MutableCountedSet<K>): MutableCountedSet<K> {
-        return MutableCountedSet(this).apply {
-            for ((k , v) in that.map) {
-                // TODO inspect this
-                val difference = get(k) - v
-                if (difference > 0) {
-                    this[k] = difference
-                } else {
-                    // TODO inspect this
-                    this.remove(k)
-                }
+        for ((key, count) in that.map) {
+            repeat(count) {
+                this - key
             }
         }
+        return this
     }
 
     /**
@@ -254,10 +243,26 @@ class MutableCountedSet<K: Comparable<K>>(
         return remove(k)
     }
 
-    fun getBase() = given.joinToString("")
+    /**
+     *
+     */
+    fun getBase(): String = given.joinToString("")
 
+    /**
+     *
+     */
     operator fun component1(): MutableSet<K> = map.keys
 
+    /**
+     *
+     */
     operator fun component2(): MutableCollection<Int> = map.values
+
+    /**
+     *
+     */
+    public override fun clone(): MutableCountedSet<K> {
+        return MutableCountedSet(this.given, this.map)
+    }
 
 }
