@@ -1,29 +1,12 @@
 import java.nio.file.Files
 import java.nio.file.Path
-import java.util.*
 
-/*
-TODO
- clean up
- 1) add comments
- 2) remove unused
- 10MAY21
- work on set union, difference, intersection
-
- */
-
-/*
- 3.1)
- */
 fun getWords() = Files.readAllLines(Path.of("corpus.csv")).map {
     it.split(",")
 }.flatten().map {
     MutableCountedSet(it.toList())
 }.toSet()
 
-/*
-1), 2)
-*/
 fun getInput() = run {
     val text = readLine()?.lowercase() ?: ""
     val letters = text.split(" ").map {
@@ -32,9 +15,6 @@ fun getInput() = run {
     MutableCountedSet(letters)
 }
 
-/*
-3.2)
-*/
 fun getSubset(
     given: MutableCountedSet<Char> ,
     dict: Set<MutableCountedSet<Char>>
@@ -46,9 +26,6 @@ fun getSubset(
     }.filter { it.getBase().isNotEmpty() }.toSet()
 }
 
-/*
-4)
-*/
 fun reduce(remaining: MutableCountedSet<Char>) {
     var words = getSubset(remaining , getWords())
     while (remaining.isNotEmpty() && words.isNotEmpty() && words.isNotEmpty()) {
@@ -70,4 +47,3 @@ fun main() {
     println(set)
     reduce(set)
 }
-
