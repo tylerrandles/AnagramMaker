@@ -24,9 +24,9 @@ Challenge Input
 
 Desperate
 
-Redditor
+Pelican
 
-Dailyprogrammer
+Incredibletempest
 
 Sam likes to swim
 
