@@ -7,6 +7,7 @@ Anagrams, where you take the letters from one or more words and rearrange them t
 First you'll provide an integer (N) on a single line, this tells you how many lines to read. Then you'll be given a word (or words) on N lines to make anagrams for. Example:
 
 1
+
 Field of dreams
 
 Example Output
