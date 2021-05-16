@@ -4,14 +4,14 @@ class MutableCountedSet<K: Comparable<K>>(
     private val given: Collection<K> ,
     private val map: MutableMap<K, Int> = mutableMapOf() ,
     override var size: Int = map.size ,
-): MutableSet<K>, MutableCollection<K>, Cloneable {
+): MutableSet<K>, MutableCollection<K> {
 
     init {
         addAll(given)
     }
 
     /**
-     *
+     * Add the element to the set and computes its multiplicity
      */
     override fun add(element: K): Boolean {
         map.compute(element , ::inc)
@@ -20,7 +20,10 @@ class MutableCountedSet<K: Comparable<K>>(
     }
 
     /**
+     * Inline function to initialize a counted set
      *
+     * @param block    The function which will define the elements
+     * @return         The resulting set
      */
     inline fun apply(block: MutableCountedSet<K>.() -> Unit): MutableCountedSet<K> {
         block(this)
@@ -28,27 +31,36 @@ class MutableCountedSet<K: Comparable<K>>(
     }
 
     /**
-     *
+     * A function to compute the multiplicity of an element
+     * If it does not already exist, the multiplicity will be 1
+     * otherwise `count` will be incremented
      */
     private fun inc(key: K, count: Int?): Int = count?.plus(1)?: 1
 
     /**
      *
      */
-    fun forEach(action: (key: K) -> Unit) = map.keys.forEach(action)
+    fun forEach(action: (entry: Map.Entry<K, Int>) -> Unit) = map.forEach(action)
 
     /**
      *
      */
-    fun reduce(action: (acc: K, curr: K) -> K) = map.keys.reduce(action)
+    fun reduce(action: (acc: Map.Entry<K, Int>, curr: Map.Entry<K, Int>) -> Map.Entry<K, Int>): Map.Entry<K, Int> {
+        return TODO("Will take some thinking")
+    }
 
     /**
      *
      */
-    fun filter(action: (matches: K) -> Boolean) = map.keys.filter(action)
+    fun filter(action: (matches: Map.Entry<K, Int>,) -> Boolean) = map.filter(action)
 
     /**
      *
+     */
+    fun <R> map(action: (Map.Entry<K, Int>,) -> R) = map.map(action)
+
+    /**
+     * Custom join to string function
      */
     fun joinToString(separator: String): String = StringBuilder().apply {
         toSortedMapByKey().forEach { (key, count) ->
@@ -59,7 +71,7 @@ class MutableCountedSet<K: Comparable<K>>(
     }.toString().substring(separator.length)
 
     /**
-     *
+     * Cannot return a sorted map by values, refer to `keyByMaxCount`
      */
     @Deprecated(message =
         "after defining the sort the 'toMap' removes the sort by count refer to 'keyByMaxCount' for an alternative"
@@ -76,20 +88,20 @@ class MutableCountedSet<K: Comparable<K>>(
     private fun toSortedMapByKey() = map.toSortedMap()
 
     /**
-     *
+     * Description of the object
      */
-    override fun toString() =
-        "[${map.toList().joinToString(", ") { "${it.first}:${it.second}" } }]"
+    override fun toString() = "[${map.toList().joinToString(", ") { "${it.first}:${it.second}" } }]"
 
     /**
-     *
+     * Returns true if the map contains the element, otherwise false
      */
     override operator fun contains(element: K): Boolean {
         return map.containsKey(element)
     }
 
     /**
-     *
+     * TODO check the logic, I think it needs to be set.all this[key] >= count
+     * Returns true if the ...
      */
     operator fun contains(set: MutableCountedSet<K>): Boolean {
         return map.all { (key, count) ->
@@ -98,28 +110,28 @@ class MutableCountedSet<K: Comparable<K>>(
     }
 
     /**
-     *
+     * Returns true if all of the given elements exist within the map
      */
     override fun containsAll(elements: Collection<K>): Boolean {
         return map.keys.containsAll(elements)
     }
 
     /**
-     *
+     * Returns true if the set is empty (has no elements), otherwise false
      */
     override fun isEmpty(): Boolean {
         return map.isEmpty()
     }
 
     /**
-     *
+     * Returns an iterator over the keys
      */
     override fun iterator(): MutableIterator<K> {
         return map.keys.iterator()
     }
 
     /**
-     *
+     * Adds all of the given elements to the set
      */
     override fun addAll(elements: Collection<K>): Boolean {
         elements.forEach(::add)
@@ -127,7 +139,7 @@ class MutableCountedSet<K: Comparable<K>>(
     }
 
     /**
-     *
+     * Removes all elements, sets size to 0
      */
     override fun clear() {
         size = 0
@@ -135,7 +147,9 @@ class MutableCountedSet<K: Comparable<K>>(
     }
 
     /**
-     *
+     * Removes a single instance of the element from the set
+     * If the resulting number is `0` the element will be removed
+     * from the set entirely
      */
     override fun remove(element: K): Boolean {
         var count = map.remove(element)
@@ -150,7 +164,7 @@ class MutableCountedSet<K: Comparable<K>>(
     }
 
     /**
-     *
+     * Removes all of the given elements
      */
     override fun removeAll(elements: Collection<K>): Boolean {
         for (element in elements) {
@@ -160,7 +174,7 @@ class MutableCountedSet<K: Comparable<K>>(
     }
 
     /**
-     *
+     * TODO(look up the proper implementation of this)
      */
     override fun retainAll(elements: Collection<K>): Boolean {
         var kept = false
@@ -176,13 +190,13 @@ class MutableCountedSet<K: Comparable<K>>(
     }
 
     /**
-     *
+     * Returns the key with the highest multiplicity
      */
     fun keyByMaxCount(): K = map.map { it.key to it.value }
         .sortedWith(compareBy( {it.second}, { it.first } )).last().first
 
     /**
-     *
+     * Returns the highest number of occurrences
      */
     fun maxValue(): Int = map.maxOf(Map.Entry<K, Int>::value)
 
@@ -197,12 +211,12 @@ class MutableCountedSet<K: Comparable<K>>(
     fun isSupersetOf(other: MutableCountedSet<K>): Boolean = this.all { this[it] >= other[it] }
 
     /**
-     *
+     * Operator function to get entries
      */
     operator fun get(entry: K): Int = this.map[entry]?: 0
 
     /**
-     *
+     * Operator function to define entries
      */
     operator fun set(entry: K , value: Int) {
         repeat(value) {
@@ -211,21 +225,22 @@ class MutableCountedSet<K: Comparable<K>>(
     }
 
     /**
-     *
+     * Returns a new counted set combining the current elements with the given elements
      */
     operator fun plus(elements: Collection<K>): MutableCountedSet<K> {
         return MutableCountedSet(this).also { addAll(elements) }
     }
 
     /**
-     *
+     * Adds all of the elements to the current set
      */
     operator fun plusAssign(elements: Collection<K>) {
         this.addAll(MutableCountedSet(elements))
     }
 
     /**
-     *
+     * Removes all of the keys from the current set
+     * // TODO `add` returns a new set, `minus` returns this. need to make consistent
      */
     operator fun minus(that: MutableCountedSet<K>): MutableCountedSet<K> {
         for ((key, count) in that.map) {
@@ -237,32 +252,28 @@ class MutableCountedSet<K: Comparable<K>>(
     }
 
     /**
+     * Operator function for removing an element from the set
      *
+     * @param k    The given k
+     * @return     True unless exception thrown
      */
     operator fun minus(k: K): Boolean {
         return remove(k)
     }
 
     /**
-     *
+     * Given parameter as a string
      */
     fun getBase(): String = given.joinToString("")
 
     /**
-     *
+     * Keys for deconstruction
      */
     operator fun component1(): MutableSet<K> = map.keys
 
     /**
-     *
+     * Corresponding values to keys for deconstruction
      */
     operator fun component2(): MutableCollection<Int> = map.values
-
-    /**
-     *
-     */
-    public override fun clone(): MutableCountedSet<K> {
-        return MutableCountedSet(this.given, this.map)
-    }
 
 }
