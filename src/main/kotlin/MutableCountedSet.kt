@@ -88,11 +88,6 @@ class MutableCountedSet<K: Comparable<K>>(
     private fun toSortedMapByKey() = map.toSortedMap()
 
     /**
-     * Description of the object
-     */
-    override fun toString() = "[${map.toList().joinToString(", ") { "${it.first}:${it.second}" } }]"
-
-    /**
      * Returns true if the map contains the element, otherwise false
      */
     override operator fun contains(element: K): Boolean {
@@ -100,7 +95,7 @@ class MutableCountedSet<K: Comparable<K>>(
     }
 
     /**
-     * TODO check the logic, I think it needs to be set.all this[key] >= count
+     * TODO check the logic, I think it needs to be set.all this.get(key) >= count
      * Returns true if the ...
      */
     operator fun contains(set: MutableCountedSet<K>): Boolean {
@@ -275,5 +270,10 @@ class MutableCountedSet<K: Comparable<K>>(
      * Corresponding values to keys for deconstruction
      */
     operator fun component2(): MutableCollection<Int> = map.values
+
+    /**
+     * Description of the object
+     */
+    override fun toString() = "[${map.toList().joinToString(", ") { "${it.first}:${it.second}" } }]"
 
 }
