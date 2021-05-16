@@ -4,19 +4,11 @@ class MutableCountedSet<K: Comparable<K>>(
     private val given: Collection<K> ,
     private val map: MutableMap<K, Int> = mutableMapOf() ,
     override var size: Int = map.size ,
-): MutableSet<K>, MutableCollection<K> {
+): MutableSet<K>, MutableCollection<K>, Cloneable {
 
     init {
         addAll(given)
     }
-
-    /**
-     *
-     *
-    constructor(collection: Collection<K>) {
-        this.given = collection
-        addAll(collection)
-    }*/
 
     /**
      *
@@ -39,18 +31,6 @@ class MutableCountedSet<K: Comparable<K>>(
      *
      */
     private fun inc(key: K, count: Int?): Int = count?.plus(1)?: 1
-
-    /**
-     *
-     */
-    private fun dec(key: K, count: Int?): Int {
-        // = count?.minus(1)?: 0
-        return if (count != null) {
-            count - 1
-        } else {
-            0
-        }
-    }
 
     /**
      *
@@ -158,34 +138,12 @@ class MutableCountedSet<K: Comparable<K>>(
      *
      */
     override fun remove(element: K): Boolean {
-        val result = when (val number = map[element]?.also(::println)) {
-            null -> {
-                print("res: null, ")
-                0
-            }
-            in Int.MIN_VALUE..1 -> {
-                print("res: < 1, ")
-                0
-            }
-            else -> {
-                print("res: 1 or more, ")
-                number - 1
-            }
-        }
-
-        print("key: $element, result: $result, ") //TODO I don't know why the result is messed up
-        when {
-            result > 0 -> {
-                print("decreasing size, ")
-                --size
-            }
-            result in Int.MIN_VALUE..0 -> {
-                print("removing because less than 1, ")
-                map.remove(element)
-            }
-            else -> {
-                print("else, meee")
-                map.remove(element)
+        var count = map.remove(element)
+        if (count != null) {
+            --size
+            --count
+            if (count > 0) {
+                map[element] = count
             }
         }
         return true
@@ -270,16 +228,12 @@ class MutableCountedSet<K: Comparable<K>>(
      *
      */
     operator fun minus(that: MutableCountedSet<K>): MutableCountedSet<K> {
-        return MutableCountedSet(this).apply {
-            that.map.forEach { (key, count) ->
-                println("start: $this")
-                println(key to count)
-                repeat(count) {
-                    remove(key)
-                }
-                println("result: $this")
+        for ((key, count) in that.map) {
+            repeat(count) {
+                this - key
             }
         }
+        return this
     }
 
     /**
@@ -289,10 +243,26 @@ class MutableCountedSet<K: Comparable<K>>(
         return remove(k)
     }
 
-    fun getBase() = given.joinToString("")
+    /**
+     *
+     */
+    fun getBase(): String = given.joinToString("")
 
+    /**
+     *
+     */
     operator fun component1(): MutableSet<K> = map.keys
 
+    /**
+     *
+     */
     operator fun component2(): MutableCollection<Int> = map.values
+
+    /**
+     *
+     */
+    public override fun clone(): MutableCountedSet<K> {
+        return MutableCountedSet(this.given, this.map)
+    }
 
 }
