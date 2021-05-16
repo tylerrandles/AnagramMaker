@@ -21,9 +21,16 @@ Field of dreams -> Deaf Fold Miser
 Challenge Input
 
 6
+
 Desperate
+
 Redditor
+
 Dailyprogrammer
+
 Sam likes to swim
+
 The Morse Code
+
 Help, someone stole my purse
+
