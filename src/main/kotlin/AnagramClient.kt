@@ -19,7 +19,7 @@ fun getSubset(
     given: MutableCountedSet<Char> ,
     dict: Set<MutableCountedSet<Char>>
 ): Set<MutableCountedSet<Char>> {
-    return mutableSetOf<MutableCountedSet<Char>>().apply {
+    return HashSet<MutableCountedSet<Char>>(64).apply {
         for (word in dict)
             if (word.isSubsetOf(given))
                 add(word)
