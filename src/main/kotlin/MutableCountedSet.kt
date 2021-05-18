@@ -44,12 +44,12 @@ class MutableCountedSet<K: Comparable<K>>(
     }
 
     /**
-     *
+     * ForEach
      */
     fun forEach(action: (entry: Map.Entry<K, Int>) -> Unit) = map.forEach(action)
 
     /**
-     *
+     * Reduce
      */
     fun reduce(action: (acc: Map.Entry<K, Int>, curr: Map.Entry<K, Int>) -> Map.Entry<K, Int>): Map.Entry<K, Int> {
         var curr = this.map.toMap().entries.first()
@@ -60,12 +60,12 @@ class MutableCountedSet<K: Comparable<K>>(
     }
 
     /**
-     *
+     * Filter
      */
     fun filter(action: (matches: Map.Entry<K, Int>,) -> Boolean) = map.filter(action)
 
     /**
-     *
+     * Map
      */
     fun <R> map(action: (Map.Entry<K, Int>,) -> R) = map.map(action)
 
@@ -174,8 +174,8 @@ class MutableCountedSet<K: Comparable<K>>(
      * Removes all of the given elements
      */
     override fun removeAll(elements: Collection<K>): Boolean {
-        for (element in elements) {
-            remove(element)
+        for (key in elements) {
+            remove(key)
         }
         return true
     }
@@ -201,8 +201,11 @@ class MutableCountedSet<K: Comparable<K>>(
     /**
      * Returns the key with the highest multiplicity
      */
-    fun keyByMaxCount(): K = map.map { it.key to it.value }
-        .sortedWith(compareBy( {it.second}, { it.first } )).last().first
+    fun keyByMaxCount(): K = map.map {
+        it.key to it.value
+    }.sortedWith(
+        compareBy( { it.second }, { it.first } )
+    ).last().first
 
     /**
      * Returns the highest number of occurrences
@@ -210,41 +213,41 @@ class MutableCountedSet<K: Comparable<K>>(
     fun maxValue(): Int = map.maxOf(Map.Entry<K, Int>::value)
 
     /**
-     *
+     * Determines if all values are less than or equal to other values for all keys
      */
     fun isSubsetOf(other: MutableCountedSet<K>): Boolean = this.all { this[it] <= other[it] }
 
     /**
-     *
+     * Determines if all values are greater than or equal to other values for all keys
      */
     fun isSupersetOf(other: MutableCountedSet<K>): Boolean = this.all { this[it] >= other[it] }
 
     /**
      * Operator function to get entries
      */
-    operator fun get(entry: K): Int = this.map[entry]?: 0
+    operator fun get(key: K): Int = this.map[key]?: 0
 
     /**
      * Operator function to define entries
      */
-    operator fun set(entry: K , value: Int) {
+    operator fun set(key: K , value: Int) {
         repeat(value) {
-            this.add(entry)
+            this.add(key)
         }
     }
 
     /**
      * Returns a new counted set combining the current elements with the given elements
      */
-    operator fun plus(elements: Collection<K>): MutableCountedSet<K> {
-        return MutableCountedSet(this).also { addAll(elements) }
+    operator fun plus(keys: Collection<K>): MutableCountedSet<K> {
+        return MutableCountedSet(this).also { addAll(keys) }
     }
 
     /**
      * Adds all of the elements to the current set
      */
-    operator fun plusAssign(elements: Collection<K>) {
-        this.addAll(MutableCountedSet(elements))
+    operator fun plusAssign(keys: Collection<K>) {
+        this.addAll(MutableCountedSet(keys))
     }
 
     /**
@@ -262,11 +265,11 @@ class MutableCountedSet<K: Comparable<K>>(
     /**
      * Operator function for removing an element from the set
      *
-     * @param k    The given k
-     * @return     True unless exception thrown
+     * @param key    The given k
+     * @return       True unless exception thrown
      */
-    operator fun minus(k: K): Boolean {
-        return remove(k)
+    operator fun minus(key: K): Boolean {
+        return remove(key)
     }
 
     /**
@@ -287,6 +290,6 @@ class MutableCountedSet<K: Comparable<K>>(
     /**
      * Description of the object
      */
-    override fun toString() = "[${map.toList().joinToString(", ") { "${it.first}:${it.second}" } }]"
+    override fun toString() = "[${map.toList().joinToString(", ") { "${ it.first }:${ it.second }" } }]"
 
 }
