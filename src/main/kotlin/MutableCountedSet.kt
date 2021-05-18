@@ -35,7 +35,13 @@ class MutableCountedSet<K: Comparable<K>>(
      * If it does not already exist, the multiplicity will be 1
      * otherwise `count` will be incremented
      */
-    private fun inc(key: K, count: Int?): Int = count?.plus(1)?: 1
+    private fun inc(key: K, count: Int?): Int {
+        return if (count == null) {
+            1
+        } else {
+            count + 1
+        }
+    }
 
     /**
      *
@@ -46,7 +52,11 @@ class MutableCountedSet<K: Comparable<K>>(
      *
      */
     fun reduce(action: (acc: Map.Entry<K, Int>, curr: Map.Entry<K, Int>) -> Map.Entry<K, Int>): Map.Entry<K, Int> {
-        return TODO("Will take some thinking")
+        var curr = this.map.toMap().entries.first()
+        for (entry in this.map) {
+            curr = action(curr, entry)
+        }
+        return curr
     }
 
     /**
@@ -74,7 +84,7 @@ class MutableCountedSet<K: Comparable<K>>(
      * Cannot return a sorted map by values, refer to `keyByMaxCount`
      */
     @Deprecated(message =
-        "after defining the sort the 'toMap' removes the sort by count refer to 'keyByMaxCount' for an alternative"
+    "after defining the sort the 'toMap' removes the sort by count refer to 'keyByMaxCount' for an alternative"
     )
     fun toSortedMapByCount(): SortedMap<K, Int> =
         map.map { it.key to it.value }
@@ -95,13 +105,15 @@ class MutableCountedSet<K: Comparable<K>>(
     }
 
     /**
-     * TODO check the logic, I think it needs to be set.all this.get(key) >= count
-     * Returns true if the ...
+     * Returns true if the
      */
-    operator fun contains(set: MutableCountedSet<K>): Boolean {
-        return map.all { (key, count) ->
-            set[key] <= count
+    operator fun contains(other: MutableCountedSet<K>): Boolean {
+        for (otherKey in other.map.keys) {
+            if (!this.map.containsKey(otherKey) || this[otherKey] < other[otherKey]) {
+                return false
+            }
         }
+        return true
     }
 
     /**
@@ -169,19 +181,21 @@ class MutableCountedSet<K: Comparable<K>>(
     }
 
     /**
-     * TODO(look up the proper implementation of this)
+     * Retains only the elements in this collection that are contained in the specified collection.
+     * Returns:
+     * true if any element was removed from the collection, false if the collection was not modified.
      */
     override fun retainAll(elements: Collection<K>): Boolean {
-        var kept = false
+        var removed = true
         val keys = map.keys
-        map.clear()
+        this.clear()
         elements.forEach {
             if (keys.contains(it)) {
                 add(it)
-                kept = true
+                removed = false
             }
         }
-        return kept
+        return removed
     }
 
     /**
@@ -235,7 +249,6 @@ class MutableCountedSet<K: Comparable<K>>(
 
     /**
      * Removes all of the keys from the current set
-     * // TODO `add` returns a new set, `minus` returns this. need to make consistent
      */
     operator fun minus(that: MutableCountedSet<K>): MutableCountedSet<K> {
         for ((key, count) in that.map) {
