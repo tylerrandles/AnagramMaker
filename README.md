@@ -18,8 +18,6 @@ Field of dreams -> Dads Offer Lime
 
 Field of dreams -> Deaf Fold Miser
 
-Challenge Input
-
 6
 
 Desperate
